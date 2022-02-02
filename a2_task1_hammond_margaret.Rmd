@@ -47,17 +47,27 @@ class(palmetto_sub$species)
 ### 2.2 Data Visualization
 Explore differences in height, canopy length, canopy width, and green leaves for the two species. 
 ```{r}
-ggplot(data = palmetto_sub, aes(x = species, y = height)) +
-  geom_beeswarm()
+ggplot(data = palmetto_sub, aes(x = species, y = height, color = species)) +
+  geom_quasirandom(size = 0.5)
 
-ggplot(data = palmetto_sub, aes(x = species, y = length)) +
-  geom_boxplot()
+ggplot(data = palmetto_sub, aes(x = species, y = length, color = species)) +
+  geom_quasirandom(size = 0.5, show.legend = FALSE) +
+  labs(x = "Species",
+       y = "Length of Canopy",
+       title = "Length of Canopy of Palmetto Species", 
+       caption = "FLORIDA SOMETHING Length of canopy from 1981 - 2017") 
 
-ggplot(data = palmetto_sub, aes(x = species, y = width)) +
-  geom_boxplot()
+ggplot(data = palmetto_sub, aes(x = species, y = width, color = species)) +
+  geom_quasirandom(size = 0.5)
 
-ggplot(data = palmetto_sub, aes(x = species, y = green_lvs)) +
-  geom_boxplot()
+ggplot(data = palmetto_sub, aes(x = species, y = green_lvs, color = species)) +
+  geom_quasirandom(size = 0.5, show.legend = FALSE) +
+  labs(x = "Species",
+       y = "Count of Green Leaves",
+       title = "Amount of Green Leaves on Palmetto Species", 
+       caption = "FLORIDA count of green leaves 1981-2017 NEED MORE") 
+
+# length and green_lvs are the most different between the two species
 ```
 
 
