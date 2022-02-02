@@ -1,0 +1,83 @@
+---
+title: "beepboop"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(here)
+library(GGally)
+library(broom)
+library(caret)
+library(AICcmodavg)
+library(ggbeeswarm)
+```
+
+
+## 1. Overview
+** GIVE AN OVERVIEW OF THE DATA HERE** 
+An overview section describing the data, the question(s) to be addressed in your analysis, and a citation of the dataset.
+
+
+## 2. Explore the Data
+
+### 2.1 Read and Wrangle the Data
+
+```{r}
+palmetto <- read_csv(here("data", "palmetto.csv"))
+
+# species 1 is serenoa repends, species 2 is sabal etonia
+
+# subset of height, length, width, green_lvs
+
+palmetto_sub <- palmetto %>% 
+  select(species, height, length, width, green_lvs) %>% 
+  mutate(species = case_when(
+    species == "1" ~ "0", #serenoa repends now 0
+    species == "2" ~ "1" #sabal etonia now 1
+  )) 
+
+palmetto_sub$species <- as.factor(palmetto_sub$species)
+
+
+class(palmetto_sub$species)
+```
+### 2.2 Data Visualization
+Explore differences in height, canopy length, canopy width, and green leaves for the two species. 
+```{r}
+ggplot(data = palmetto_sub, aes(x = species, y = height)) +
+  geom_beeswarm()
+
+ggplot(data = palmetto_sub, aes(x = species, y = length)) +
+  geom_boxplot()
+
+ggplot(data = palmetto_sub, aes(x = species, y = width)) +
+  geom_boxplot()
+
+ggplot(data = palmetto_sub, aes(x = species, y = green_lvs)) +
+  geom_boxplot()
+```
+
+
+
+## 3. Binary Logistic Regression
+A section in which you perform binary logistic regression to determine the probability of a plant being either Serenoa repens or Sabal etonia based on several predictor variables.  Perform the analysis twice, using cross validation to compare two models:
+Log odds of plant type using plant height, canopy length, canopy width and green leaves as predictor variable.
+Log odds of plant type using plant height, canopy width and green leaves (i.e., drop canopy length for this model) **height, length, width, green_lvs"
+Make sure you understand which species is the first ‘0’ factor level, and which is ‘1’ - you may want to convert to a factor first, then use the levels() function to check.  Use repeated cross validation (ten-fold cross validation, repeated at least ten times - you can use functions from the {caret} package to automate this, or manually perform the analysis using for-loops).  Based on the results of the cross validation, describe which model performs better at classification; you may wish to compare AICC values as well to support your decision. 
+
+### 2.1 Create the Binary Logistic Regression Models
+
+```{r}
+f1 <- species ~ height + length + width + green_lvs
+
+spec_blr1 <- glm(formula = f1,
+                 data = palmetto_sub,
+                 family = "binomial")
+```
+
+
+## Final Reports
+A section containing 2 - 3 finalized (customized, suitable for a publication) data visualizations (with figure captions) in which you explore differences in height, canopy length, canopy width, and green leaves for the two species. If you prefer, combine the figures into a compound figure using {patchwork} or {cowplot}. Below your data visualizations, add a sentence or two with a takeaway from the plots, e.g., based on these plots, which predictor variables are more likely to help classify species correctly?
