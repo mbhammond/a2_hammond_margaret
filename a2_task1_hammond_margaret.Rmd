@@ -13,6 +13,7 @@ library(broom)
 library(caret)
 library(AICcmodavg)
 library(ggbeeswarm)
+library(kableExtra)
 ```
 
 
@@ -37,7 +38,8 @@ palmetto_sub <- palmetto %>%
   mutate(species = case_when(
     species == "1" ~ "0", #serenoa repends now 0
     species == "2" ~ "1" #sabal etonia now 1
-  )) 
+  )) %>% 
+  drop_na()
 
 palmetto_sub$species <- as.factor(palmetto_sub$species)
 
@@ -47,7 +49,7 @@ class(palmetto_sub$species)
 ### 2.2 Data Visualization
 Explore differences in height, canopy length, canopy width, and green leaves for the two species. 
 ```{r}
-ggplot(data = palmetto_sub, aes(x = species, y = height, color = species)) +
+height_plot <- ggplot(data = palmetto_sub, aes(x = species, y = height, color = species)) +
   geom_quasirandom(size = 0.5)
 
 ggplot(data = palmetto_sub, aes(x = species, y = length, color = species)) +
@@ -57,7 +59,7 @@ ggplot(data = palmetto_sub, aes(x = species, y = length, color = species)) +
        title = "Length of Canopy of Palmetto Species", 
        caption = "FLORIDA SOMETHING Length of canopy from 1981 - 2017") 
 
-ggplot(data = palmetto_sub, aes(x = species, y = width, color = species)) +
+width_plot <- ggplot(data = palmetto_sub, aes(x = species, y = width, color = species)) +
   geom_quasirandom(size = 0.5)
 
 ggplot(data = palmetto_sub, aes(x = species, y = green_lvs, color = species)) +
@@ -86,6 +88,63 @@ f1 <- species ~ height + length + width + green_lvs
 spec_blr1 <- glm(formula = f1,
                  data = palmetto_sub,
                  family = "binomial")
+
+f2 <- species ~ height + width + green_lvs
+
+spec_blr2 <- glm(formula = f2,
+                 data = palmetto_sub,
+                 family = "binomial")
+
+class(palmetto_sub$species)
+levels(palmetto_sub$species)
+# 0 is 0, 1 is 1. Serona is 0.
+
+
+
+summary(spec_blr1)
+summary(spec_blr2)
+
+blr1_tidy <- tidy(spec_blr1)
+blr2_tidy <- tidy(spec_blr2)
+
+aictab(list(spec_blr1, spec_blr2))
+
+```
+
+### 2.2 Use `caret`
+```{r}
+
+set.seed(123)
+
+tr_ctrl <- trainControl(method = "repeatedcv",
+                        number = 10, repeats = 10)
+
+# Train the model
+model1 <- train(f1, data = palmetto_sub,
+                method = "glm",
+                family = "binomial",
+                trControl = tr_ctrl)
+#model1
+
+model2 <- train(f2, data = palmetto_sub,
+                method = "glm",
+                family = "binomial",
+                trControl = tr_ctrl)
+
+
+```
+
+```{r}
+spec_blr1_tidy <- tidy(spec_blr1)
+
+spec_blr1_tidy %>% 
+  kable(col.names = c("Term",
+                      "Estimate",
+                      "Standard Error",
+                      "Statistic",
+                      "P Value"),
+        caption = 'Table 1. Binary logistic regression model results for model 1, a model of plant species as a function of height, canopy length, canopy width an green leaves')
+
 ```
 
 
