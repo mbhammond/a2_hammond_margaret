@@ -1,5 +1,5 @@
 ---
-title: "beepboop"
+title: "Palmetto Binary Logistic Regression"
 output: html_document
 ---
 
@@ -14,6 +14,7 @@ library(caret)
 library(AICcmodavg)
 library(ggbeeswarm)
 library(kableExtra)
+library(janitor)
 ```
 
 
@@ -133,20 +134,64 @@ model2 <- train(f2, data = palmetto_sub,
 
 
 ```
-
+## Table of Model 1
 ```{r}
 spec_blr1_tidy <- tidy(spec_blr1)
 
+# 0 is Serenoa repens
+# 1 is Sabal etonia 
 spec_blr1_tidy %>% 
   kable(col.names = c("Term",
                       "Estimate",
                       "Standard Error",
                       "Statistic",
                       "P Value"),
-        caption = 'Table 1. Binary logistic regression model results for model 1, a model of plant species as a function of height, canopy length, canopy width an green leaves')
+        caption = 'Table 1. Binary logistic regression model results for model 1, a model of plant species as a function of height, canopy length, canopy width an green leaves') %>% 
+  kable_classic(bootstrap_options = "striped", full_width = FALSE)
+
+```
+
+## Probability Calculations
+Use `broom::augment` to find the probabilities for each plant in the original dataset, then add a column for which species your model would classify that plant as (using a 50% cutoff). 
+
+```{r}
+
+# 0 is Serenoa repens
+# 1 is Sabal etonia 
+
+spec_blr1_fitted <- spec_blr1 %>% 
+  augment(type.predict = "response") %>% 
+  mutate(predict_species = case_when(
+    .fitted > .5 ~ "Sabal etonia", # probability over .5, higher chance it will be species 1, Sabal etonia
+    .fitted < .5 ~ "Serenoa repens" # probability below .5, low chance it is Sabal etonia, assigned to Serenoa repens
+  ))
+
+spec_blr1_counts <- spec_blr1_fitted %>% 
+  tabyl(species, predict_species)
+
+spec_proportions <- spec_blr1_counts %>% 
+  mutate(species = case_when(
+    species == "0" ~ "Serenoa repens",
+    species == "1" ~ "Sabal etonia")) %>% 
+  adorn_percentages() %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns()
+
+spec_proportions %>% 
+  kable(col.names = c(
+    "Species",
+    "Probability of Sabal etonia",
+    "Probability of Serenoa repens"),
+    caption = "Table 2. Probability of correct Sabal etonia and Serenoa repens species as predicted by Model 1.") %>% 
+  kable_classic(bootstrap_options = "striped", full_width = FALSE)
+
 
 ```
 
 
 ## Final Reports
 A section containing 2 - 3 finalized (customized, suitable for a publication) data visualizations (with figure captions) in which you explore differences in height, canopy length, canopy width, and green leaves for the two species. If you prefer, combine the figures into a compound figure using {patchwork} or {cowplot}. Below your data visualizations, add a sentence or two with a takeaway from the plots, e.g., based on these plots, which predictor variables are more likely to help classify species correctly?
+
+## Data Citation
+Abrahamson, W.G. 2019. Survival, growth and biomass estimates of two dominant palmetto species of south-central Florida from 1981 - 2017, ongoing at 5-year intervals ver 1. Environmental Data Initiative. https://doi.org/10.6073/pasta/f2f96ec76fbbd4b9db431c79a770c4d5
+
