@@ -16,11 +16,12 @@ library(AICcmodavg)
 library(ggbeeswarm)
 library(kableExtra)
 library(janitor)
+library(patchwork)
 ```
 
 
 ## 1. Overview
-This data focuses on the survival, growth and biomass estimates of two dominant palmetto species, ***Serenoa repens*** and ***Sabal etonia***, populations in south-centra Florida from 1981-2017. In this task, I will be doing a binomial linear regression model using plant height, canopy length, canopy width, and green leaves as predictor variables.   
+This data focuses on the survival, growth and biomass estimates of two dominant palmetto species, ***Serenoa repens*** and ***Sabal etonia***, populations in south-centra Florida from 1981-2017. In this task, I will be doing a binary linear regression model using plant height, canopy length, canopy width, and green leaves as predictor variables.   
 
 
 
@@ -61,7 +62,9 @@ palmetto_plot <- palmetto_sub %>%
 height_plot <- ggplot(data = palmetto_sub, aes(x = species, y = height, color = species)) +
   geom_quasirandom(size = 0.5)
 
-length_ plot <- ggplot(data = palmetto_plot, aes(x = species, y = length, color = species)) +
+length_plot <- ggplot(data = palmetto_plot, aes(x = species, 
+                                                 y = length, 
+                                                 color = species)) +
   geom_quasirandom(size = 0.5, show.legend = FALSE) +
   scale_color_manual(values = c("dark green", "purple")) +
   labs(x = "Species",
@@ -86,9 +89,10 @@ green_plot <- ggplot(data = palmetto_plot, aes(x = species, y = green_lvs, color
 
 # length and green_lvs are the most different between the two species
 
-cowplot(length_plot/green_plot)
+length_plot / green_plot
 ```
 
+For data visualization, I chose to show the difference between the two species for canopy length (cm) and green leaves count. These two variables had the biggest differences in means, and will be important predictor variables in the binary logistic regression models.
 
 
 ## 3. Binary Logistic Regression
@@ -126,6 +130,7 @@ aictab(list(spec_blr1, spec_blr2))
 ```
 
 ### 2.2 Use `caret`
+
 ```{r}
 
 set.seed(123)
@@ -147,7 +152,10 @@ model2 <- train(f2, data = palmetto_sub,
 
 
 ```
-## Table of Model 1
+
+### 2.3 Table of Model 1
+Create a table of model 1, chosen because had a better AIC score. This table shows the coefficients used in the Model 1 binary logistic regression. 
+
 ```{r}
 spec_blr1_tidy <- tidy(spec_blr1)
 
@@ -165,10 +173,11 @@ spec_blr1_tidy %>%
 ```
 
 ## Probability Calculations
-Use `broom::augment` to find the probabilities for each plant in the original dataset, then add a column for which species your model would classify that plant as (using a 50% cutoff). 
+Use `broom::augment` to find the probabilities for each plant in the original dataset, and add a column for which species your model would classify that plant as (using a 50% cutoff). 
 
- The outcome should be a finalized table showing, for each species, how many plants in the original dataset would be correctly classified and how many were incorrectly classified by the model, as well as an **additional column with “% correctly classified”. MUST** Add a table caption above the table, and a 1-2 sentence conclusion paragraph after.
 
+## 3. Model 1 Predictions 
+Create a table showing model 1's ability to predict the palmetto species using binary linear regression. 
 
 ```{r}
 
@@ -207,9 +216,10 @@ spec_proportions %>%
 
 ```
 
+### 3.1 Probability Calculations Conclusion
+Model 1 was able to predict INLINE CODE correct for ***Serenoa repens*** and INLINE CODE for ***Sabal etonia***. Model 1 was able to predict the plant species based off of the predictor variables relatively well.
 
-## Final Reports
-A section containing 2 - 3 finalized (customized, suitable for a publication) data visualizations (with figure captions) in which you explore differences in height, canopy length, canopy width, and green leaves for the two species. If you prefer, combine the figures into a compound figure using {patchwork} or {cowplot}. Below your data visualizations, add a sentence or two with a takeaway from the plots, e.g., based on these plots, which predictor variables are more likely to help classify species correctly?
+lp classify species correctly?
 
 ## Data Citation
 Abrahamson, W.G. 2019. Survival, growth and biomass estimates of two dominant palmetto species of south-central Florida from 1981 - 2017, ongoing at 5-year intervals ver 1. Environmental Data Initiative. https://doi.org/10.6073/pasta/f2f96ec76fbbd4b9db431c79a770c4d5
