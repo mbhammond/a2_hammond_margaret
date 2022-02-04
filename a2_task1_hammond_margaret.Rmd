@@ -1,9 +1,10 @@
 ---
 title: "Palmetto Binary Logistic Regression"
+author: "Margaret Hammond"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message = FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
@@ -19,8 +20,8 @@ library(janitor)
 
 
 ## 1. Overview
-** GIVE AN OVERVIEW OF THE DATA HERE** 
-An overview section describing the data, the question(s) to be addressed in your analysis, and a citation of the dataset.
+This data focuses on the survival, growth and biomass estimates of two dominant palmetto species, ***Serenoa repens*** and ***Sabal etonia***, populations in south-centra Florida from 1981-2017. In this task, I will be doing a binomial linear regression model using plant height, canopy length, canopy width, and green leaves as predictor variables.   
+
 
 
 ## 2. Explore the Data
@@ -48,38 +49,50 @@ palmetto_sub$species <- as.factor(palmetto_sub$species)
 class(palmetto_sub$species)
 ```
 ### 2.2 Data Visualization
-Explore differences in height, canopy length, canopy width, and green leaves for the two species. 
+Explore differences in height, canopy length, canopy width, and green leaves for the two palmetto species. 
 ```{r}
+
+palmetto_plot <- palmetto_sub %>% 
+  mutate(species = case_when(
+    species == "0" ~ "Serenoa repends", #serenoa repends now 0
+    species == "1" ~ "Sabal etonia" #sabal etonia now 1
+  ))
+  
 height_plot <- ggplot(data = palmetto_sub, aes(x = species, y = height, color = species)) +
   geom_quasirandom(size = 0.5)
 
-ggplot(data = palmetto_sub, aes(x = species, y = length, color = species)) +
+length_ plot <- ggplot(data = palmetto_plot, aes(x = species, y = length, color = species)) +
   geom_quasirandom(size = 0.5, show.legend = FALSE) +
+  scale_color_manual(values = c("dark green", "purple")) +
   labs(x = "Species",
-       y = "Length of Canopy",
-       title = "Length of Canopy of Palmetto Species", 
-       caption = "FLORIDA SOMETHING Length of canopy from 1981 - 2017") 
+       y = "Length of Canopy (cm)",
+       title = "Length of Canopy of Palmetto Species",
+       caption = "South-Central Palmetto species Serenoa repends 
+       and Sabal etonia length of canopy (cm) from 1981-2017 (Abrahamson 2019)") 
 
 width_plot <- ggplot(data = palmetto_sub, aes(x = species, y = width, color = species)) +
   geom_quasirandom(size = 0.5)
 
-ggplot(data = palmetto_sub, aes(x = species, y = green_lvs, color = species)) +
+green_plot <- ggplot(data = palmetto_plot, aes(x = species, y = green_lvs, color = species)) +
   geom_quasirandom(size = 0.5, show.legend = FALSE) +
+  scale_color_manual(values = c("dark green", "purple")) +
   labs(x = "Species",
        y = "Count of Green Leaves",
        title = "Amount of Green Leaves on Palmetto Species", 
-       caption = "FLORIDA count of green leaves 1981-2017 NEED MORE") 
+       caption = "South-Central Palmetto species Serenoa repends 
+       and Sabal etonia count of green leaves from 1981-2017 (Abrahamson 2019)") 
+
+# species 1 is serenoa repends, species 2 is sabal etonia
 
 # length and green_lvs are the most different between the two species
+
+cowplot(length_plot/green_plot)
 ```
 
 
 
 ## 3. Binary Logistic Regression
-A section in which you perform binary logistic regression to determine the probability of a plant being either Serenoa repens or Sabal etonia based on several predictor variables.  Perform the analysis twice, using cross validation to compare two models:
-Log odds of plant type using plant height, canopy length, canopy width and green leaves as predictor variable.
-Log odds of plant type using plant height, canopy width and green leaves (i.e., drop canopy length for this model) **height, length, width, green_lvs"
-Make sure you understand which species is the first ‘0’ factor level, and which is ‘1’ - you may want to convert to a factor first, then use the levels() function to check.  Use repeated cross validation (ten-fold cross validation, repeated at least ten times - you can use functions from the {caret} package to automate this, or manually perform the analysis using for-loops).  Based on the results of the cross validation, describe which model performs better at classification; you may wish to compare AICC values as well to support your decision. 
+Create a binary logistic regression model for the two palmetto species, using log odds of species using plant height, canopy length, canopy width, and green leaves as predictor variables. Based on the results of the cross validation, a model will be chosen as the better binary logistic regression model.
 
 ### 2.1 Create the Binary Logistic Regression Models
 
@@ -154,6 +167,9 @@ spec_blr1_tidy %>%
 ## Probability Calculations
 Use `broom::augment` to find the probabilities for each plant in the original dataset, then add a column for which species your model would classify that plant as (using a 50% cutoff). 
 
+ The outcome should be a finalized table showing, for each species, how many plants in the original dataset would be correctly classified and how many were incorrectly classified by the model, as well as an **additional column with “% correctly classified”. MUST** Add a table caption above the table, and a 1-2 sentence conclusion paragraph after.
+
+
 ```{r}
 
 # 0 is Serenoa repens
@@ -165,6 +181,9 @@ spec_blr1_fitted <- spec_blr1 %>%
     .fitted > .5 ~ "Sabal etonia", # probability over .5, higher chance it will be species 1, Sabal etonia
     .fitted < .5 ~ "Serenoa repens" # probability below .5, low chance it is Sabal etonia, assigned to Serenoa repens
   ))
+
+spec_count_right <- spec_blr1_fitted %>% 
+  count(predict_species, species)
 
 spec_blr1_counts <- spec_blr1_fitted %>% 
   tabyl(species, predict_species)
