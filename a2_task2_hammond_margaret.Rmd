@@ -3,26 +3,56 @@ title: "beepboop2"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message = FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(here)
+library(purrr)
+library(minpack.lm)
+library(broom)
+library(patchwork)
+library(kableExtra)
 ```
 
-## R Markdown
+## 1. Overview
+In this task, I will be using non linear least squares to estimate parameters of a length to weight model for lizard populations in New Mexico. 
+PUT OVERVIEW HERE
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## Explore the Data
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+### 2.1 Read in the data
+```{r}
+lizards <- read_csv(here("data", "lizard.csv")) %>% 
+  mutate(log_length = log(SV_length), # use log() to linearize the model
+         log_weight = log(weight))
+```
+## Set up the model
 
-```{r cars}
-summary(cars)
+Must set up the model to be able to make guesses for coefficients a and b. Take the data and create a linear model in order for OLS regression to occur.
+
+$$
+ln(W) = ln(a) + b*ln(SLV)
+$$
+
+```{r}
+lizards_mdl <- lm(log_weight ~ log_length, data = lizards) # Created for OLS
+
+lizards_coef <- coef(lizards_mdl) %>% 
+  exp() # convert coefficients out of log form
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+## Functions
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+The following functions are used in the analysis:
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+1) The model the data is being fitted to.
+2) An RMSE calculation function **ALL THIS MUST BE CHANGED CUZ I PLAGERIZED**
+
+
+
+
+
+
