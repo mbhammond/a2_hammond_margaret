@@ -187,30 +187,61 @@ Create a table showing model 1's ability to predict the palmetto species using b
 spec_blr1_fitted <- spec_blr1 %>% 
   augment(type.predict = "response") %>% 
   mutate(predict_species = case_when(
-    .fitted > .5 ~ "Sabal etonia", # probability over .5, higher chance it will be species 1, Sabal etonia
-    .fitted < .5 ~ "Serenoa repens" # probability below .5, low chance it is Sabal etonia, assigned to Serenoa repens
+    .fitted > .5 ~ "1", # probability over .5, higher chance it will be species 1, Sabal etonia
+    .fitted < .5 ~ "0"), # probability below .5, low chance it is Sabal etonia, assigned to Serenoa repens
+  accuracy = case_when(
+    species == predict_species ~ 1, # accurate results
+    species != predict_species ~ 0), # innacurate results
+  correct = case_when(
+    accuracy == 1 ~ 'y',
+    accuracy == 0 ~ 'n'
   ))
 
-spec_count_right <- spec_blr1_fitted %>% 
-  count(predict_species, species)
 
-spec_blr1_counts <- spec_blr1_fitted %>% 
-  tabyl(species, predict_species)
+accuracy_sum <- spec_blr1_fitted %>% 
+  group_by(species) %>% 
+  summarize(accuracy = mean(accuracy, na.rm = TRUE) * 100)
 
-spec_proportions <- spec_blr1_counts %>% 
+correct_sum <- spec_blr1_fitted %>% 
+  group_by(correct, species) %>% 
+  summarize(count = n()) %>% 
+  pivot_wider(names_from = correct,
+              values_from = count)
+
+
+correct_final <- cbind(correct_sum, accuracy_sum) %>% 
+  select(!1) %>% 
   mutate(species = case_when(
-    species == "0" ~ "Serenoa repens",
-    species == "1" ~ "Sabal etonia")) %>% 
-  adorn_percentages() %>% 
-  adorn_pct_formatting(digits = 2) %>% 
-  adorn_ns()
+    species == 1 ~ 'Sabal etona',
+    species == 0 ~ 'Serenoa repens'
+  ))  
+  
+correct_final <-correct_final[, c(3, 1, 2, 4)]
 
-spec_proportions %>% 
+
+  
+#spec_count_right <- spec_blr1_fitted %>% 
+ # count(predict_species, species)
+
+#spec_blr1_counts <- spec_blr1_fitted %>% 
+ # tabyl(species, predict_species)
+
+#spec_proportions <- spec_blr1_counts %>% 
+ # mutate(species = case_when(
+  #  species == "0" ~ "Serenoa repens",
+   # species == "1" ~ "Sabal etonia")) %>% 
+#  adorn_percentages() %>% 
+ # adorn_pct_formatting(digits = 2) %>% 
+  #adorn_ns()
+
+correct_final %>% 
   kable(col.names = c(
     "Species",
-    "Probability of Sabal etonia",
-    "Probability of Serenoa repens"),
-    caption = "Table 2. Probability of correct Sabal etonia and Serenoa repens species as predicted by Model 1.") %>% 
+    "Amount Incorrect",
+    'Amount Correct',
+    "Percent Correct"),
+    caption = "Table 2. Probability of correct Sabal etonia and Serenoa repens species as predicted by Model 1.",
+    digits = 2) %>% 
   kable_classic(bootstrap_options = "striped", full_width = FALSE)
 
 

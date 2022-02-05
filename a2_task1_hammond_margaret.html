@@ -500,30 +500,60 @@ green_lvs
 spec_blr1_fitted &lt;- spec_blr1 %&gt;% 
   augment(type.predict = &quot;response&quot;) %&gt;% 
   mutate(predict_species = case_when(
-    .fitted &gt; .5 ~ &quot;Sabal etonia&quot;, # probability over .5, higher chance it will be species 1, Sabal etonia
-    .fitted &lt; .5 ~ &quot;Serenoa repens&quot; # probability below .5, low chance it is Sabal etonia, assigned to Serenoa repens
+    .fitted &gt; .5 ~ &quot;1&quot;, # probability over .5, higher chance it will be species 1, Sabal etonia
+    .fitted &lt; .5 ~ &quot;0&quot;), # probability below .5, low chance it is Sabal etonia, assigned to Serenoa repens
+  accuracy = case_when(
+    species == predict_species ~ 1, # accurate results
+    species != predict_species ~ 0), # innacurate results
+  correct = case_when(
+    accuracy == 1 ~ &#39;y&#39;,
+    accuracy == 0 ~ &#39;n&#39;
   ))
 
-spec_count_right &lt;- spec_blr1_fitted %&gt;% 
-  count(predict_species, species)
 
-spec_blr1_counts &lt;- spec_blr1_fitted %&gt;% 
-  tabyl(species, predict_species)
+accuracy_sum &lt;- spec_blr1_fitted %&gt;% 
+  group_by(species) %&gt;% 
+  summarize(accuracy = mean(accuracy, na.rm = TRUE) * 100)
 
-spec_proportions &lt;- spec_blr1_counts %&gt;% 
+correct_sum &lt;- spec_blr1_fitted %&gt;% 
+  group_by(correct, species) %&gt;% 
+  summarize(count = n()) %&gt;% 
+  pivot_wider(names_from = correct,
+              values_from = count)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;correct&#39;. You can override using the `.groups` argument.</code></pre>
+<pre class="r"><code>correct_final &lt;- cbind(correct_sum, accuracy_sum) %&gt;% 
+  select(!1) %&gt;% 
   mutate(species = case_when(
-    species == &quot;0&quot; ~ &quot;Serenoa repens&quot;,
-    species == &quot;1&quot; ~ &quot;Sabal etonia&quot;)) %&gt;% 
-  adorn_percentages() %&gt;% 
-  adorn_pct_formatting(digits = 2) %&gt;% 
-  adorn_ns()
+    species == 1 ~ &#39;Sabal etona&#39;,
+    species == 0 ~ &#39;Serenoa repens&#39;
+  ))  
+  
+correct_final &lt;-correct_final[, c(3, 1, 2, 4)]
 
-spec_proportions %&gt;% 
+
+  
+#spec_count_right &lt;- spec_blr1_fitted %&gt;% 
+ # count(predict_species, species)
+
+#spec_blr1_counts &lt;- spec_blr1_fitted %&gt;% 
+ # tabyl(species, predict_species)
+
+#spec_proportions &lt;- spec_blr1_counts %&gt;% 
+ # mutate(species = case_when(
+  #  species == &quot;0&quot; ~ &quot;Serenoa repens&quot;,
+   # species == &quot;1&quot; ~ &quot;Sabal etonia&quot;)) %&gt;% 
+#  adorn_percentages() %&gt;% 
+ # adorn_pct_formatting(digits = 2) %&gt;% 
+  #adorn_ns()
+
+correct_final %&gt;% 
   kable(col.names = c(
     &quot;Species&quot;,
-    &quot;Probability of Sabal etonia&quot;,
-    &quot;Probability of Serenoa repens&quot;),
-    caption = &quot;Table 2. Probability of correct Sabal etonia and Serenoa repens species as predicted by Model 1.&quot;) %&gt;% 
+    &quot;Amount Incorrect&quot;,
+    &#39;Amount Correct&#39;,
+    &quot;Percent Correct&quot;),
+    caption = &quot;Table 2. Probability of correct Sabal etonia and Serenoa repens species as predicted by Model 1.&quot;,
+    digits = 2) %&gt;% 
   kable_classic(bootstrap_options = &quot;striped&quot;, full_width = FALSE)</code></pre>
 <table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
@@ -534,11 +564,14 @@ Table 2. Probability of correct Sabal etonia and Serenoa repens species as predi
 <th style="text-align:left;">
 Species
 </th>
-<th style="text-align:left;">
-Probability of Sabal etonia
+<th style="text-align:right;">
+Amount Incorrect
 </th>
-<th style="text-align:left;">
-Probability of Serenoa repens
+<th style="text-align:right;">
+Amount Correct
+</th>
+<th style="text-align:right;">
+Percent Correct
 </th>
 </tr>
 </thead>
@@ -547,22 +580,28 @@ Probability of Serenoa repens
 <td style="text-align:left;">
 Serenoa repens
 </td>
-<td style="text-align:left;">
-9.23% (564)
+<td style="text-align:right;">
+564
 </td>
-<td style="text-align:left;">
-90.77% (5548)
+<td style="text-align:right;">
+5548
+</td>
+<td style="text-align:right;">
+90.77
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Sabal etonia
+Sabal etona
 </td>
-<td style="text-align:left;">
-92.62% (5701)
+<td style="text-align:right;">
+454
 </td>
-<td style="text-align:left;">
-7.38% (454)
+<td style="text-align:right;">
+5701
+</td>
+<td style="text-align:right;">
+92.62
 </td>
 </tr>
 </tbody>
