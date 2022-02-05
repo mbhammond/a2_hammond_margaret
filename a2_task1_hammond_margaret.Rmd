@@ -1,7 +1,10 @@
 ---
 title: "Palmetto Binary Logistic Regression"
 author: "Margaret Hammond"
-output: html_document
+output: 
+  html_document:
+    theme: flatly
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE, message = FALSE, warning = FALSE}

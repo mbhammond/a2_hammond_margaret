@@ -1,6 +1,10 @@
 ---
 title: "beepboop2"
-output: html_document
+author: 'Margaret Hammond'
+output: 
+  html_document:
+    theme: flatly
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE, message = FALSE, warning = FALSE}
@@ -13,6 +17,7 @@ library(minpack.lm)
 library(broom)
 library(patchwork)
 library(kableExtra)
+library(janitor)
 ```
 
 ## 1. Overview
@@ -31,16 +36,29 @@ lizards <- read_csv(here("data", "lizard.csv")) %>%
 
 Must set up the model to be able to make guesses for coefficients a and b. Take the data and create a linear model in order for OLS regression to occur.
 
+
 $$
-ln(W) = ln(a) + b*ln(SLV)
+W = a(SVL)^b
 $$
+In this model, W is weight, and SVL is snout to vent length.
+
 
 ```{r}
-lizards_mdl <- lm(log_weight ~ log_length, data = lizards) # Created for OLS
+lizards_model <- function(a, SVL, b) {
+  W = a*SVL^b
+  return(W)
+}
+```
 
-lizards_coef <- coef(lizards_mdl) %>% 
+
+
+```{r}
+parameter_guess <- lm(log_weight ~ log_length, data = lizards) # Created for OLS
+
+lizards_coef <- coef(parameter_guess) %>% 
   exp() # convert coefficients out of log form
 
+lizards_coef
 ```
 
 
@@ -51,6 +69,15 @@ The following functions are used in the analysis:
 1) The model the data is being fitted to.
 2) An RMSE calculation function **ALL THIS MUST BE CHANGED CUZ I PLAGERIZED**
 
+```{r}
+
+lizards_nls <- nls(weight ~ lizards_mdl(a, SV_length, b),
+                   data = lizards,
+                   start = list(
+                     a = 2.718^(lizards_coef[1]/lizards_coef[2]),
+                     b = lizards_coef[2]),
+                   trace = TRUE)
+```
 
 
 
