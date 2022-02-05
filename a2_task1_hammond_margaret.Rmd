@@ -162,6 +162,8 @@ Create a table of model 1, chosen because had a better AIC score. This table sho
 ```{r}
 spec_blr1_tidy <- tidy(spec_blr1)
 
+spec_blr1_tidy$p.value <- ifelse(spec_blr1_tidy$p.value < .001, paste('< .001'))
+
 # 0 is Serenoa repens
 # 1 is Sabal etonia 
 spec_blr1_tidy %>% 

@@ -88,10 +88,35 @@ tidy_nls$p.value <- ifelse(tidy_nls$p.value < .001, paste('< .001'))
 
 tidy_nls %>% 
   select(-statistic) %>% 
-  kable(col.names = c('Parameter', 'Estimated', 'Standard Error', 'P Values'), digits = 4) %>% 
+  kable(col.names = c('Parameter', 
+                      'Estimated', 
+                      'Standard Error', 
+                      'P Values'), 
+        caption = 'Table 1. Parameter estimates of coefficient a and b for the nls model.',
+        digits = 4) %>% 
   kable_classic(bootstrap_options = "striped", full_width = FALSE)
 ```
 
 
+### NLS Predictions
+
+I will use the nls model to generate predictions from the data.
+
+```{r}
+general_mdl_pred <- predict(lizards_nls)
+
+
+lizards_complete <- data.frame(lizards, general_mdl_pred)
+
+ggplot(data = lizards_complete,
+       aes(x = SV_length, 
+           y = weight, 
+           color = sex)) +
+  geom_line() +
+  labs(x = 'Snout to Vent Length (mm)',
+       y = 'Weight (g)') +
+  theme_minimal()
+
+```
 
 
