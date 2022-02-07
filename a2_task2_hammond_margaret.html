@@ -200,7 +200,7 @@ pre code {
 </div>
 <div id="set-up-the-model" class="section level2">
 <h2>3. Set up the model</h2>
-<p>Must set up the model to be able to make guesses for coefficients a and b. Take the data and create a linear model in order for OLS regression to occur.</p>
+<p>Must set up the NLS model of weight as a function of snout to vent length to be able to make guesses for coefficients a and b. Take the data and create a linear model in order for OLS regression to occur.</p>
 <p><span class="math display">\[
 W = a(SVL)^b
 \]</span> In this model, W is weight, and SVL is snout to vent length.</p>
@@ -302,7 +302,7 @@ b
 </div>
 <div id="nls-predictions" class="section level3">
 <h3>4.2 NLS Predictions</h3>
-<p>I will use the NLS model to generate predictions from the data.</p>
+<p>I will use the NLS model to generate predictions of weight based on snout to vent length from the Lightfoot, 2020 data.</p>
 <pre class="r"><code>general_mdl_pred &lt;- predict(lizards_nls)
 
 
@@ -325,7 +325,7 @@ ggplot(data = lizards_complete,
 </div>
 <div id="fit-nls-to-western-whiptail-lizard" class="section level3">
 <h3>Fit NLS to Western Whiptail lizard</h3>
-<p>Filter out the dataset for male Western Whiptail lizard (Cnemidophorus tigrisatus). Fit an NLS model to this subset. Compare the output from the species specific nls model to the general NLS model for all species by graphing the model fits on the Western Whiptail male data. Report the RMSE for both models in the figure caption. Also in the figure caption briefly discuss which model should be used and why.</p>
+<p>I will filter out the dataset for male Western Whiptail lizard (<em>Cnemidophorus tigrisatus</em>). Then, I will fit an NLS model to this subset. After, I compare the output from the species specific NLS model to the general NLS model for all species by graphing the model fits on the Western Whiptail male data.</p>
 <pre class="r"><code># filter out just male Western Whiptail
 
 whip_sub &lt;- lizards %&gt;% 

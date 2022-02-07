@@ -74,7 +74,7 @@ length_plot <- ggplot(data = palmetto_plot, aes(x = species,
   labs(x = "Species",
        y = "Length of Canopy (cm)",
        title = "Length of Canopy of Palmetto Species",
-       caption = "South-Central Palmetto species Serenoa repends 
+       caption = "Figure 1. South-Central Palmetto species Serenoa repends 
        and Sabal etonia length of canopy (cm) from 1981-2017 (Abrahamson 2019)") 
 
 width_plot <- ggplot(data = palmetto_sub, aes(x = species, y = width, color = species)) +
@@ -86,7 +86,7 @@ green_plot <- ggplot(data = palmetto_plot, aes(x = species, y = green_lvs, color
   labs(x = "Species",
        y = "Count of Green Leaves",
        title = "Amount of Green Leaves on Palmetto Species", 
-       caption = "South-Central Palmetto species Serenoa repends 
+       caption = "Figure 2. South-Central Palmetto species Serenoa repends 
        and Sabal etonia count of green leaves from 1981-2017 (Abrahamson 2019)") 
 
 # species 1 is serenoa repends, species 2 is sabal etonia

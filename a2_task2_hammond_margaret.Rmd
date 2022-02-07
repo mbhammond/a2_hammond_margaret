@@ -35,7 +35,7 @@ lizards <- read_csv(here("data", "lizard.csv")) %>%
 ```
 ## 3. Set up the model
 
-Must set up the model to be able to make guesses for coefficients a and b. Take the data and create a linear model in order for OLS regression to occur.
+Must set up the NLS model of weight as a function of snout to vent length to be able to make guesses for coefficients a and b. Take the data and create a linear model in order for OLS regression to occur.
 
 
 $$
@@ -97,7 +97,7 @@ tidy_nls %>%
 
 ### 4.2 NLS Predictions
 
-I will use the NLS model to generate predictions from the data. 
+I will use the NLS model to generate predictions of weight based on snout to vent length from the Lightfoot, 2020 data. 
 
 ```{r}
 general_mdl_pred <- predict(lizards_nls)
@@ -125,7 +125,7 @@ ggplot(data = lizards_complete,
 
 
 ### Fit NLS to Western Whiptail lizard
-Filter out the dataset for male Western Whiptail lizard (Cnemidophorus tigrisatus). Fit an NLS model to this subset. Compare the output from the species specific nls model to the general NLS model for all species by graphing the model fits on the Western Whiptail male data. Report the RMSE for both models in the figure caption. Also in the figure caption briefly discuss which model should be used and why.
+I will filter out the dataset for male Western Whiptail lizard (*Cnemidophorus tigrisatus*). Then, I will fit an NLS model to this subset. After, I compare the output from the species specific NLS model to the general NLS model for all species by graphing the model fits on the Western Whiptail male data. 
 
 
 ```{r, results = FALSE}
