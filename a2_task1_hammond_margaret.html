@@ -180,28 +180,22 @@ pre code {
 
 <h1 class="title toc-ignore">Palmetto Binary Logistic Regression</h1>
 <h4 class="author">Margaret Hammond</h4>
+<h4 class="date">2/7/2022</h4>
 
 </div>
 
 
 <div id="overview" class="section level2">
 <h2>1. Overview</h2>
-<p>This data focuses on the survival, growth and biomass estimates of two dominant palmetto species, <strong><em>Serenoa repens</em></strong> and <strong><em>Sabal etonia</em></strong>, populations in south-centra Florida from 1981-2017. In this task, I will be doing a binary linear regression model using plant height, canopy length, canopy width, and green leaves as predictor variables.</p>
+<p>This data focuses on the survival, growth and biomass estimates of two dominant palmetto species, <em>Serenoa repens</em> and <em>Sabal etonia</em>, populations in south-centra Florida from 1981-2017. In this task, I will be doing a binary linear regression model using plant height, canopy length, canopy width, and green leaves as predictor variables.</p>
 </div>
 <div id="explore-the-data" class="section level2">
 <h2>2. Explore the Data</h2>
 <div id="read-and-wrangle-the-data" class="section level3">
 <h3>2.1 Read and Wrangle the Data</h3>
-<pre class="r"><code>palmetto &lt;- read_csv(here(&quot;data&quot;, &quot;palmetto.csv&quot;))</code></pre>
-<pre><code>## Rows: 12460 Columns: 17</code></pre>
-<pre><code>## -- Column specification --------------------------------------------------------
-## Delimiter: &quot;,&quot;
-## chr  (1): comments
-## dbl (16): year, plant, species, site, habitat, treatment, survival, height, ...</code></pre>
-<pre><code>## 
-## i Use `spec()` to retrieve the full column specification for this data.
-## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code># species 1 is serenoa repends, species 2 is sabal etonia
+<pre class="r"><code>palmetto &lt;- read_csv(here(&quot;data&quot;, &quot;palmetto.csv&quot;))
+
+# species 1 is serenoa repends, species 2 is sabal etonia
 
 # subset of height, length, width, green_lvs
 
@@ -216,8 +210,7 @@ palmetto_sub &lt;- palmetto %&gt;%
 palmetto_sub$species &lt;- as.factor(palmetto_sub$species)
 
 
-class(palmetto_sub$species)</code></pre>
-<pre><code>## [1] &quot;factor&quot;</code></pre>
+# class(palmetto_sub$species) checking the class of the species</code></pre>
 </div>
 <div id="data-visualization" class="section level3">
 <h3>2.2 Data Visualization</h3>
@@ -280,80 +273,23 @@ spec_blr2 &lt;- glm(formula = f2,
                  data = palmetto_sub,
                  family = &quot;binomial&quot;)
 
-class(palmetto_sub$species)</code></pre>
-<pre><code>## [1] &quot;factor&quot;</code></pre>
-<pre class="r"><code>levels(palmetto_sub$species)</code></pre>
-<pre><code>## [1] &quot;0&quot; &quot;1&quot;</code></pre>
-<pre class="r"><code># 0 is 0, 1 is 1. Serona is 0.
+# class(palmetto_sub$species)
+# levels(palmetto_sub$species)
+# 0 is 0, 1 is 1. Serona is 0.
 
 
 
-summary(spec_blr1)</code></pre>
-<pre><code>## 
-## Call:
-## glm(formula = f1, family = &quot;binomial&quot;, data = palmetto_sub)
-## 
-## Deviance Residuals: 
-##     Min       1Q   Median       3Q      Max  
-## -3.3964  -0.1725   0.0054   0.2681   4.7828  
-## 
-## Coefficients:
-##              Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)  3.226685   0.142071   22.71   &lt;2e-16 ***
-## height      -0.029217   0.002306  -12.67   &lt;2e-16 ***
-## length       0.045823   0.001866   24.56   &lt;2e-16 ***
-## width        0.039443   0.002100   18.78   &lt;2e-16 ***
-## green_lvs   -1.908475   0.038863  -49.11   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## (Dispersion parameter for binomial family taken to be 1)
-## 
-##     Null deviance: 17005.5  on 12266  degrees of freedom
-## Residual deviance:  5184.6  on 12262  degrees of freedom
-## AIC: 5194.6
-## 
-## Number of Fisher Scoring iterations: 7</code></pre>
-<pre class="r"><code>summary(spec_blr2)</code></pre>
-<pre><code>## 
-## Call:
-## glm(formula = f2, family = &quot;binomial&quot;, data = palmetto_sub)
-## 
-## Deviance Residuals: 
-##     Min       1Q   Median       3Q      Max  
-## -3.4455  -0.2167   0.0112   0.3404   4.7113  
-## 
-## Coefficients:
-##              Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)  3.767722   0.135314  27.844   &lt;2e-16 ***
-## height      -0.002950   0.001881  -1.568    0.117    
-## width        0.069019   0.001785  38.661   &lt;2e-16 ***
-## green_lvs   -1.884815   0.036127 -52.172   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## (Dispersion parameter for binomial family taken to be 1)
-## 
-##     Null deviance: 17005.5  on 12266  degrees of freedom
-## Residual deviance:  5979.5  on 12263  degrees of freedom
-## AIC: 5987.5
-## 
-## Number of Fisher Scoring iterations: 7</code></pre>
-<pre class="r"><code>blr1_tidy &lt;- tidy(spec_blr1)
+# summary(spec_blr1)
+# summary(spec_blr2)
+
+blr1_tidy &lt;- tidy(spec_blr1)
 blr2_tidy &lt;- tidy(spec_blr2)
 
-aictab(list(spec_blr1, spec_blr2))</code></pre>
-<pre><code>## Warning in aictab.AICglm.lm(list(spec_blr1, spec_blr2)): 
-## Model names have been supplied automatically in the table</code></pre>
-<pre><code>## 
-## Model selection based on AICc:
-## 
-##      K    AICc Delta_AICc AICcWt Cum.Wt       LL
-## Mod1 5 5194.57       0.00      1      1 -2592.28
-## Mod2 4 5987.48     792.91      0      1 -2989.74</code></pre>
+# aictab(list(spec_blr1, spec_blr2))</code></pre>
 </div>
 <div id="use-caret" class="section level3">
 <h3>2.2 Use <code>caret</code></h3>
+<p>Use the package <code>caret</code> to do k-fold validation of the binary logistic regression model.</p>
 <pre class="r"><code>set.seed(123)
 
 tr_ctrl &lt;- trainControl(method = &quot;repeatedcv&quot;,
@@ -375,6 +311,8 @@ model2 &lt;- train(f2, data = palmetto_sub,
 <h3>2.3 Table of Model 1</h3>
 <p>Create a table of model 1, chosen because had a better AIC score. This table shows the coefficients used in the Model 1 binary logistic regression.</p>
 <pre class="r"><code>spec_blr1_tidy &lt;- tidy(spec_blr1)
+
+spec_blr1_tidy$p.value &lt;- ifelse(spec_blr1_tidy$p.value &lt; .001, paste(&#39;&lt; .001&#39;))
 
 # 0 is Serenoa repens
 # 1 is Sabal etonia 
@@ -404,7 +342,7 @@ Standard Error
 <th style="text-align:right;">
 Statistic
 </th>
-<th style="text-align:right;">
+<th style="text-align:left;">
 P Value
 </th>
 </tr>
@@ -423,8 +361,8 @@ P Value
 <td style="text-align:right;">
 22.71180
 </td>
-<td style="text-align:right;">
-0
+<td style="text-align:left;">
+&lt; .001
 </td>
 </tr>
 <tr>
@@ -440,8 +378,8 @@ height
 <td style="text-align:right;">
 -12.66984
 </td>
-<td style="text-align:right;">
-0
+<td style="text-align:left;">
+&lt; .001
 </td>
 </tr>
 <tr>
@@ -457,8 +395,8 @@ length
 <td style="text-align:right;">
 24.55600
 </td>
-<td style="text-align:right;">
-0
+<td style="text-align:left;">
+&lt; .001
 </td>
 </tr>
 <tr>
@@ -474,8 +412,8 @@ width
 <td style="text-align:right;">
 18.78227
 </td>
-<td style="text-align:right;">
-0
+<td style="text-align:left;">
+&lt; .001
 </td>
 </tr>
 <tr>
@@ -491,8 +429,8 @@ green_lvs
 <td style="text-align:right;">
 -49.10728
 </td>
-<td style="text-align:right;">
-0
+<td style="text-align:left;">
+&lt; .001
 </td>
 </tr>
 </tbody>
@@ -531,12 +469,13 @@ correct_sum &lt;- spec_blr1_fitted %&gt;%
   group_by(correct, species) %&gt;% 
   summarize(count = n()) %&gt;% 
   pivot_wider(names_from = correct,
-              values_from = count)</code></pre>
-<pre><code>## `summarise()` has grouped output by &#39;correct&#39;. You can override using the `.groups` argument.</code></pre>
-<pre class="r"><code>correct_final &lt;- cbind(correct_sum, accuracy_sum) %&gt;% 
+              values_from = count)
+
+
+correct_final &lt;- cbind(correct_sum, accuracy_sum) %&gt;% 
   select(!1) %&gt;% 
   mutate(species = case_when(
-    species == 1 ~ &#39;Sabal etona&#39;,
+    species == 1 ~ &#39;Sabal etonia&#39;,
     species == 0 ~ &#39;Serenoa repens&#39;
   ))  
   
@@ -604,7 +543,7 @@ Serenoa repens
 </tr>
 <tr>
 <td style="text-align:left;">
-Sabal etona
+Sabal etonia
 </td>
 <td style="text-align:right;">
 454
@@ -620,8 +559,7 @@ Sabal etona
 </table>
 <div id="probability-calculations-conclusion" class="section level3">
 <h3>3.1 Probability Calculations Conclusion</h3>
-<p>Model 1 was able to predict INLINE CODE correct for <strong><em>Serenoa repens</em></strong> and INLINE CODE for <strong><em>Sabal etonia</em></strong>. Model 1 was able to predict the plant species based off of the predictor variables relatively well.</p>
-<p>lp classify species correctly?</p>
+<p>Model 1 was able to predict 90.77% correct for <em>Serenoa repens</em> and 92.62% for <em>Sabal etonia</em>. Model 1 was able to predict the plant species based off of the predictor variables relatively well.</p>
 </div>
 </div>
 <div id="data-citation" class="section level2">

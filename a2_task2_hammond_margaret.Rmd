@@ -1,6 +1,7 @@
 ---
-title: "beepboop2"
+title: "NLS Exploration of Lizard Weight to SVL"
 author: 'Margaret Hammond'
+date: '2/7/2022'
 output: 
   html_document:
     theme: flatly
@@ -8,7 +9,7 @@ output:
 ---
 
 ```{r setup, include=FALSE, message = FALSE, warning = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 library(tidyverse)
 library(here)
@@ -22,10 +23,9 @@ library(modelr)
 ```
 
 ## 1. Overview
-In this task, I will be using non linear least squares to estimate parameters of a length to weight model for lizard populations in New Mexico. 
-PUT OVERVIEW HERE
+In this task, I will be using the Lightfoot (2020) data on lizards in the Jornada Basin LTER site, New Mexico, 1989-2006. I will be creating a non linear least squares model to estimate the parameters of a length to weight model for the lizard populations. 
 
-## Explore the Data
+## 2. Explore the Data
 
 ### 2.1 Read in the data
 ```{r}
@@ -33,7 +33,7 @@ lizards <- read_csv(here("data", "lizard.csv")) %>%
   mutate(log_length = log(SV_length), # use log() to linearize the model
          log_weight = log(weight))
 ```
-## Set up the model
+## 3. Set up the model
 
 Must set up the model to be able to make guesses for coefficients a and b. Take the data and create a linear model in order for OLS regression to occur.
 
@@ -58,15 +58,14 @@ parameter_guess <- lm(log_weight ~ log_length, data = lizards) # Created for OLS
 
 lizards_coef <- coef(parameter_guess) 
 
-lizards_coef
+# lizards_coef checking the coefficients
 ```
 
 
-## Functions
+## 4. Functions
+Create the general lizards NLS model of weight as a function of snout to vent length. 
 
-
-
-```{r}
+```{r, results = FALSE}
 
 lizards_nls <- nls(weight ~ lizards_model(a, SV_length, b),
                    data = lizards,
@@ -76,8 +75,8 @@ lizards_nls <- nls(weight ~ lizards_model(a, SV_length, b),
                    trace = TRUE)
 ```
 
-### Table of Model
-This table shows the estimated parameters for the nls model. 
+### 4.1 Table of Model
+This table shows the estimated parameters for the NLS model. 
 
 ```{r}
 tidy_nls <- tidy(lizards_nls)
@@ -85,20 +84,20 @@ tidy_nls <- tidy(lizards_nls)
 tidy_nls$p.value <- ifelse(tidy_nls$p.value < .001, paste('< .001'))
 
 tidy_nls %>% 
-  select(-statistic) %>% 
   kable(col.names = c('Parameter', 
                       'Estimated', 
                       'Standard Error', 
+                      'Statistic',
                       'P Values'), 
-        caption = 'Table 1. Parameter estimates of coefficient a and b for the nls model.',
+        caption = 'Table 1. Parameter estimates of coefficient a and b for the nls model of weight as a function of snout to vent length of lizards in Jornada Basin LTER, from 1989-2006 (Lightfoot 2020) .',
         digits = 4) %>% 
   kable_classic(bootstrap_options = "striped", full_width = FALSE)
 ```
 
 
-### NLS Predictions
+### 4.2 NLS Predictions
 
-I will use the nls model to generate predictions from the data. **present fitted model on a plot with female and male lizards separated by color. INCLUDE THE MODEL IN KABLE OUTPUT OF THE HTML**
+I will use the NLS model to generate predictions from the data. 
 
 ```{r}
 general_mdl_pred <- predict(lizards_nls)
@@ -117,17 +116,19 @@ ggplot(data = lizards_complete,
        title = "Lizard NLS Model Predictions",
        caption = 'Figure 1. NLS vs measured weight and
        snout to vent length of lizards in
-       Jornada Basin LTER site, 1989-2006') +
+       Jornada Basin LTER site, 1989-2006 (Lightfoot 2020)') +
   theme_minimal()
+
+
 
 ```
 
 
 ### Fit NLS to Western Whiptail lizard
-Filter out the dataset for male Western Whiptail lizard (Cnemidophorus tigrisatus). Fit an nls model to this subset. Compare the output from the species specific nls model to the general nls model for all species by graphing the model fits on the Western Whiptail male data. Report the RMSE for both models in the figure caption. Also in the figure caption briefly discuss which model should be used and why.
+Filter out the dataset for male Western Whiptail lizard (Cnemidophorus tigrisatus). Fit an NLS model to this subset. Compare the output from the species specific nls model to the general NLS model for all species by graphing the model fits on the Western Whiptail male data. Report the RMSE for both models in the figure caption. Also in the figure caption briefly discuss which model should be used and why.
 
 
-```{r}
+```{r, results = FALSE}
 
 # filter out just male Western Whiptail
 
@@ -151,12 +152,11 @@ whip_nls <- nls(weight ~ lizards_model(a, SV_length, b),
 
 tidy_whip <- tidy(whip_nls)
 
-tidy_whip
+# tidy_whip
 
 ```
-**PROLLY INLINE CODE HERE**
 
-### Compare the Species NLS to General NLS
+### Compare the Species NLS to General NLS to see which is a best fit for the Western Whiptail species. 
 
 ```{r}
 lizards_general_whip <- lizards_complete %>% 
@@ -172,13 +172,13 @@ rmse_whip <- rmse(whip_nls, complete_pred)
 rmse_gen <- rmse(lizards_nls, complete_pred)
 
 rmse_complete <- cbind(rmse_whip, rmse_gen)
-rmse_complete # rmse_whip has a lower value than rmse_gen, RMSE of whip specific set is better
+# rmse_complete, rmse_whip has a lower value than rmse_gen, RMSE of whip specific set is better for Western Whiptail species
 
 ```
 
 ```{r}
 # Create plot showing the differences between the general NLS and species specific nls for Western Whip
-caption = 'Figure 2. NLS species specific model for Western Whiptail (in red) vs NLS of all lizard species (in navy) in Jornada Basin LTER site, 1989 - 2006. Black points represent actual Western Whiptail measurements of weight (g) to snout to vent length (mm). RMSE calculations done for both models, species specific model contained a lower RMSE score of 3.349 compared to general NLS model RMSE of 3.562. The species specific RMSE should be used when doing RMSE calculations for Western Whiptail, it is better fit for the data.'
+caption = 'Figure 2. NLS species specific model for Western Whiptail (in red) vs NLS of all lizard species (in navy) in Jornada Basin LTER site, 1989 - 2006. Black points represent actual Western Whiptail measurements of weight (g) to snout to vent length (mm) (Lightfoot 2020). RMSE calculations done for both models, species specific model contained a lower RMSE score of 3.349 compared to general NLS model RMSE of 3.562. The species specific RMSE should be used when doing RMSE calculations for Western Whiptail, it is better fit for the data.'
 
 ggplot(data = complete_pred) +
   geom_point(aes(x = SV_length, y = weight)) +

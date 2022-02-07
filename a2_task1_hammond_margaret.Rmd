@@ -1,6 +1,7 @@
 ---
 title: "Palmetto Binary Logistic Regression"
 author: "Margaret Hammond"
+date: '2/7/2022'
 output: 
   html_document:
     theme: flatly
@@ -8,7 +9,7 @@ output:
 ---
 
 ```{r setup, include=FALSE, message = FALSE, warning = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 library(tidyverse)
 library(here)
@@ -24,7 +25,7 @@ library(patchwork)
 
 
 ## 1. Overview
-This data focuses on the survival, growth and biomass estimates of two dominant palmetto species, ***Serenoa repens*** and ***Sabal etonia***, populations in south-centra Florida from 1981-2017. In this task, I will be doing a binary linear regression model using plant height, canopy length, canopy width, and green leaves as predictor variables.   
+This data focuses on the survival, growth and biomass estimates of two dominant palmetto species, *Serenoa repens* and *Sabal etonia*, populations in south-centra Florida from 1981-2017. In this task, I will be doing a binary linear regression model using plant height, canopy length, canopy width, and green leaves as predictor variables.   
 
 
 
@@ -50,7 +51,7 @@ palmetto_sub <- palmetto %>%
 palmetto_sub$species <- as.factor(palmetto_sub$species)
 
 
-class(palmetto_sub$species)
+# class(palmetto_sub$species) checking the class of the species
 ```
 ### 2.2 Data Visualization
 Explore differences in height, canopy length, canopy width, and green leaves for the two palmetto species. 
@@ -116,23 +117,24 @@ spec_blr2 <- glm(formula = f2,
                  data = palmetto_sub,
                  family = "binomial")
 
-class(palmetto_sub$species)
-levels(palmetto_sub$species)
+# class(palmetto_sub$species)
+# levels(palmetto_sub$species)
 # 0 is 0, 1 is 1. Serona is 0.
 
 
 
-summary(spec_blr1)
-summary(spec_blr2)
+# summary(spec_blr1)
+# summary(spec_blr2)
 
 blr1_tidy <- tidy(spec_blr1)
 blr2_tidy <- tidy(spec_blr2)
 
-aictab(list(spec_blr1, spec_blr2))
+# aictab(list(spec_blr1, spec_blr2))
 
 ```
 
 ### 2.2 Use `caret`
+Use the package `caret` to do k-fold validation of the binary logistic regression model.
 
 ```{r}
 
@@ -217,7 +219,7 @@ correct_sum <- spec_blr1_fitted %>%
 correct_final <- cbind(correct_sum, accuracy_sum) %>% 
   select(!1) %>% 
   mutate(species = case_when(
-    species == 1 ~ 'Sabal etona',
+    species == 1 ~ 'Sabal etonia',
     species == 0 ~ 'Serenoa repens'
   ))  
   
@@ -253,9 +255,8 @@ correct_final %>%
 ```
 
 ### 3.1 Probability Calculations Conclusion
-Model 1 was able to predict INLINE CODE correct for ***Serenoa repens*** and INLINE CODE for ***Sabal etonia***. Model 1 was able to predict the plant species based off of the predictor variables relatively well.
+Model 1 was able to predict `r round(correct_final$accuracy[1], 2)`% correct for *Serenoa repens* and `r round(correct_final$accuracy[2], 2)`% for *Sabal etonia*. Model 1 was able to predict the plant species based off of the predictor variables relatively well.
 
-lp classify species correctly?
 
 ## Data Citation
 Abrahamson, W.G. 2019. Survival, growth and biomass estimates of two dominant palmetto species of south-central Florida from 1981 - 2017, ongoing at 5-year intervals ver 1. Environmental Data Initiative. https://doi.org/10.6073/pasta/f2f96ec76fbbd4b9db431c79a770c4d5
