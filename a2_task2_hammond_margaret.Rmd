@@ -174,6 +174,8 @@ rmse_gen <- rmse(lizards_nls, complete_pred)
 rmse_complete <- cbind(rmse_whip, rmse_gen)
 # rmse_complete, rmse_whip has a lower value than rmse_gen, RMSE of whip specific set is better for Western Whiptail species
 
+
+
 ```
 
 ```{r}
